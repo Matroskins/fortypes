@@ -24,6 +24,6 @@ urlpatterns = [
 ]
 
 router = DefaultRouter()
-router.register(r'fonts', FontViewSet, base_name='fonts')
+router.register(r'api/fonts', FontViewSet, base_name='fonts')
 
 urlpatterns += router.urls

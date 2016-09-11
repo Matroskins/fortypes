@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import ImageField
 from django.core.files.storage import FileSystemStorage
+from imagekit.models import ImageSpecField
+from pilkit.processors import ResizeToFill
 
 from accounts.models import Account
 
@@ -20,19 +22,19 @@ STATUS_CHOICES = (
 
 
 class Font(models.Model):
-    title = models.CharField(max_length=200, help_text='test text')
+    title = models.CharField(max_length=200, help_text='title')
     author = models.ForeignKey(Account, related_name='fonts')
-    status = models.SlugField(choices=STATUS_CHOICES)
-    # image = ImageField(storage=storage)
-    # photo_small = ImageSpecField([Adjust(contrast=1.2, sharpness=1.1),
-    #                               ResizeToFill(50, 50)], image_field='photo',
-    #                              format='JPEG', options={'quality': 90})
+    status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
+    image = ImageField(storage=storage, )
+    image_thumbnail = ImageSpecField([  #[Adjust(contrast=1.2, sharpness=1.1),
+                                  ResizeToFill(100, 100)], source='image',
+                                 format='JPEG', options={'quality': 90})
 
 
 class Symbol(models.Model):
     position = models.IntegerField()
     font = models.ForeignKey(Font, related_name='symbols')
-    ul_point = models.PositiveSmallIntegerField()
-    ur_point = models.PositiveSmallIntegerField()
-    dl_point = models.PositiveSmallIntegerField()
-    dr_point = models.PositiveSmallIntegerField()
+    ul_point = models.FloatField()
+    ur_point = models.FloatField()
+    dl_point = models.FloatField()
+    dr_point = models.FloatField()
