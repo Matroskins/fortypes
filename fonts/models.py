@@ -25,14 +25,14 @@ class Font(models.Model):
     title = models.CharField(max_length=200, help_text='title')
     author = models.ForeignKey(Account, related_name='fonts')
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
-    image = ImageField(storage=storage, )
+    image = ImageField(storage=storage)
     image_thumbnail = ImageSpecField([  #[Adjust(contrast=1.2, sharpness=1.1),
                                   ResizeToFill(100, 100)], source='image',
                                  format='JPEG', options={'quality': 90})
 
 
 class Symbol(models.Model):
-    position = models.IntegerField()
+    position = models.IntegerField(unique=True)
     font = models.ForeignKey(Font, related_name='symbols')
     ul_point = models.FloatField()
     ur_point = models.FloatField()
