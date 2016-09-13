@@ -22,7 +22,7 @@ STATUS_CHOICES = (
 
 
 class Font(models.Model):
-    title = models.CharField(max_length=200, help_text='title')
+    content = models.CharField(max_length=200, help_text='content')
     author = models.ForeignKey(Account, related_name='fonts')
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
     image = ImageField(storage=storage)
@@ -32,9 +32,9 @@ class Font(models.Model):
 
 
 class Symbol(models.Model):
-    position = models.IntegerField(unique=True)
+    value = models.CharField(max_length=1)
     font = models.ForeignKey(Font, related_name='symbols')
-    ul_point = models.FloatField()
-    ur_point = models.FloatField()
-    dl_point = models.FloatField()
-    dr_point = models.FloatField()
+    point_one_x = models.FloatField()
+    point_one_y = models.FloatField()
+    point_two_x = models.FloatField()
+    point_two_y = models.FloatField()
