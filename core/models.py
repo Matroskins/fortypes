@@ -19,5 +19,5 @@ class ModelHasAuthor(models.Model):
 class ImageObj(models.Model):
     image_original = ImageField(storage=storage)
     image_thumbnail = ImageSpecField([  # [Adjust(contrast=1.2, sharpness=1.1),
-        ResizeToFill(100, 100)], source='image',
+        ResizeToFill(100, 100)], source='image_original',
         format='JPEG', options={'quality': 90})

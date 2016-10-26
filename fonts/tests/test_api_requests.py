@@ -1,5 +1,7 @@
+import copy
 import json
 
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -8,20 +10,27 @@ from accounts.tests.factories import AccountFactory
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol
 from fonts.serializers import FontSerializer, SymbolForFontSerializer
+from fonts.tests.factories import ImageObjFactory
+from fortypes.settings.base import REST_FRAMEWORK
+
+# PATCHED_REST_FRAMEWORK = copy.deepcopy(REST_FRAMEWORK)
+# PATCHED_REST_FRAMEWORK['UPLOADED_FILES_USE_URL'] = False
 
 
+# @override_settings(REST_FRAMEWORK=PATCHED_REST_FRAMEWORK)
 class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontCreateTestCase, self).setUp()
         self.account = AccountFactory(user=self.user)
         self.url = reverse("fonts-list")
+        self.image_id = ImageObjFactory().pk
 
     def test_create_font_no_image(self):
         self.data = {
             "title": "title",
             "author": self.account.id,
             "content": "ab",
-            # "image": None,
+            "image_id": self.image_id,
             "symbols": [
                 {"value": "a",
                  "point_one_x": 0.2,
@@ -42,6 +51,8 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         #     self.data.update({"file": test_file, "filename": "test_file.jpg"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         font = Font.objects.get(author=self.account)
+        print(response.data)
+        print(FontSerializer(font).data)
         self.assertEqual(response.data, FontSerializer(font).data)
 
         symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data

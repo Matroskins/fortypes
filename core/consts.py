@@ -1,0 +1,1 @@
+IMAGE_NOT_EXIST = 'image with provided id does not exist'
