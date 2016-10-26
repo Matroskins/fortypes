@@ -1,12 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import ImageField
 from django.core.files.storage import FileSystemStorage
-from imagekit.models import ImageSpecField
-from pilkit.processors import ResizeToFill
+from django.db.models.fields.related import OneToOneField
 
 from accounts.models import Account
-
+from core.models import ImageObj, ModelHasAuthor
 
 storage = FileSystemStorage(location='media/')
 
@@ -21,14 +19,10 @@ STATUS_CHOICES = (
 )
 
 
-class Font(models.Model):
+class Font(ModelHasAuthor, models.Model):
     content = models.CharField(max_length=200, help_text='content')
-    author = models.ForeignKey(Account, related_name='fonts')
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
-    image = ImageField(storage=storage)
-    image_thumbnail = ImageSpecField([  #[Adjust(contrast=1.2, sharpness=1.1),
-                                  ResizeToFill(100, 100)], source='image',
-                                 format='JPEG', options={'quality': 90})
+    image = OneToOneField(ImageObj, null=True)
 
 
 class Symbol(models.Model):

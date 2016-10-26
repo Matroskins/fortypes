@@ -29,6 +29,6 @@ class FontSerializer(ModelSerializer):
 
     class Meta:
         model = Font
-        fields = ('content', 'author_name', 'status', 'id', 'image', 'image_thumbnail', 'symbols', 'author_id')
+        fields = ('content', 'author_name', 'status', 'id', 'image', 'symbols', 'author_id')
         read_only_fields = ('id', 'author_name', 'image_thumbnail')  #, 'status')
         extra_kwargs = {'author_id': {'write_only': True}}
