@@ -19,8 +19,9 @@ Get list of all published fonts
                 "content": "THE",
                 "author_name": "Mr. Ivan Smith",
                 "status": "on_review",
-                "image": "http://testimagehost.com/test_image.jpg",
-                "image_thumbnail": "http://testimagehost.com/test_sm_image.jpg", 
+                "image": {
+                    "image_original": "http://testserver/api/fonts/test_file_Buu1X6g.jpg",
+                }
                 "symbols": [
                     {
                         "value": "T",
@@ -54,7 +55,11 @@ Request to create new font
 + Request (application/json)
 
         {
+                "title": "title",
+                "author_name": "Mr. Author", # optional
+                "image_id": 242525,
                 "content": "THE",
+                
                 "symbols": [
                     {
                         "value": "T",
