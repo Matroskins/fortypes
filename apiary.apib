@@ -20,6 +20,7 @@ Get list of all published fonts
                 "author_name": "Mr. Ivan Smith",
                 "status": "on_review",
                 "image": {
+                    "id": 232,
                     "image_original": "http://testserver/api/fonts/test_file_Buu1X6g.jpg",
                 }
                 "symbols": [
@@ -86,3 +87,24 @@ Request to create new font
             }
 
 + Response 201 (application/json)
+
+
+## Image Files [/font_upload/{file_name.jpg}]
+
+### Upload Font Image [POST]
+
+Upload image and get image id before create a font
+
++ Request (multipart)
+
+        {
+            "image": "", # binary file data,
+
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": 232,
+            "image_original": "http://testserver/api/fonts/test_file_Buu1X6g.jpg",
+        }
