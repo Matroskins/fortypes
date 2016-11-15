@@ -4,9 +4,7 @@ from django.core.files.storage import FileSystemStorage
 from django.db.models.fields.related import OneToOneField
 
 from accounts.models import Account
-from core.models import ImageObj, ModelHasAuthor
-
-storage = FileSystemStorage(location='media/')
+from core.models import ImageObj, ModelHasOwner
 
 STATUS_PRIVATE = 'private'
 STATUS_ON_REVIEW = 'on_review'
@@ -19,10 +17,11 @@ STATUS_CHOICES = (
 )
 
 
-class Font(ModelHasAuthor, models.Model):
+class Font(ModelHasOwner, models.Model):
     content = models.CharField(max_length=200, help_text='content')
+    author_name = models.CharField(max_length=500, help_text='author_name', blank=True, null=True)
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
-    image = OneToOneField(ImageObj, null=True)
+    image = OneToOneField(ImageObj)
 
 
 class Symbol(models.Model):

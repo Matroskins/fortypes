@@ -142,3 +142,4 @@ fortypes/__pycache__/
 fortypes/settings/__pycache__/
 words/__pycache__/
 words/migrations/__pycache__/
+CACHE/

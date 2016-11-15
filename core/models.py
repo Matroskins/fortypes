@@ -1,23 +1,24 @@
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.db.models import ImageField
-from imagekit.models import ImageSpecField
+from imagekit.models import ProcessedImageField
 from pilkit.processors import ResizeToFill
 
 from accounts.models import Account
+from fortypes.settings.base import MEDIA_ROOT
 
-storage = FileSystemStorage(location='media/')
+storage = FileSystemStorage(location=MEDIA_ROOT)
 
 
-class ModelHasAuthor(models.Model):
-    author = models.ForeignKey(Account)
+class ModelHasOwner(models.Model):
+    owner = models.ForeignKey(Account)
 
     class Meta:
         abstract = True
 
 
 class ImageObj(models.Model):
-    image_original = ImageField(storage=storage)
-    image_thumbnail = ImageSpecField([  # [Adjust(contrast=1.2, sharpness=1.1),
-        ResizeToFill(100, 100)], source='image_original',
+    image_original = ImageField(storage=storage, )
+    image_thumbnail = ProcessedImageField([
+        ResizeToFill(100, 100)], storage=storage,
         format='JPEG', options={'quality': 90})

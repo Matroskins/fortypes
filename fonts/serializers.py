@@ -17,28 +17,28 @@ class SymbolForFontSerializer(ModelSerializer):
 class FontSerializer(ModelSerializer):
     symbols = SymbolForFontSerializer(many=True)
     author_name = SerializerMethodField()
-    author_id = IntegerField(required=False, write_only=True)
+    owner_id = IntegerField(required=False, write_only=True)
     image_id = IntegerField(write_only=True)
     image = ImageObjOutSerializer(required=False)
 
     def get_author_name(self, instance):
-        return instance.author.user.get_full_name()
+        return instance.author_name or instance.owner.user.get_full_name()
 
     def create(self, validated_data):
-        author = validated_data.pop('author_id')
+        owner = validated_data.pop('owner_id')
         symbols_data = validated_data.pop('symbols')
         try:
             image_id = ImageObj.objects.get(pk=validated_data.pop('image_id')).pk
         except ImageObj.DoesNotExist:
             raise ValidationError(IMAGE_NOT_EXIST)
 
-        font = Font.objects.create(author_id=author, image_id=image_id, **validated_data)
+        font = Font.objects.create(owner_id=owner, image_id=image_id, **validated_data)
         for symbol_data in symbols_data:
             Symbol.objects.create(font=font, **symbol_data)
         return font
 
     class Meta:
         model = Font
-        fields = ('content', 'author_name', 'status', 'id', 'symbols', 'author_id', 'image_id', 'image')
+        fields = ('content', 'author_name', 'status', 'id', 'symbols', 'owner_id', 'image_id', 'image')
         read_only_fields = ('id', 'author_name', 'image_thumbnail')  #, 'status')
-        extra_kwargs = {'author_id': {'write_only': True}, 'image_id': {'write_only': True}}
+        extra_kwargs = {'owner_id': {'write_only': True}, 'image_id': {'write_only': True}}
