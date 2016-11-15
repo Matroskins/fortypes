@@ -1,10 +1,11 @@
 import json
-
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.tests.factories import AccountFactory
+from core.models import ImageObj
+from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol
 from fonts.serializers import FontSerializer, SymbolForFontSerializer
@@ -86,3 +87,18 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_1_data, response.data[0]['symbols'])
         self.assertIn(symbol_2_data, response.data[0]['symbols'])
         self.assertIn(symbol_3_data, response.data[1]['symbols'])
+
+
+class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(UploadImageTestCase, self).setUp()
+        self.account = AccountFactory(user=self.user)
+        self.url = reverse("font-upload", args=('test_file.jpg',))
+        self.test_file = open('fonts/tests/test_file.jpg', 'rb').read()
+
+    def test_upload_image(self):
+        response = self.client.post(self.url, {'image': self.test_file}, format='multipart')
+        image_obj = ImageObj.objects.get()
+        self.assertEqual(response.data, ImageObjOutSerializer(image_obj).data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ImageObj.objects.all()[0].image_original.delete()

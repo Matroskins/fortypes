@@ -17,13 +17,15 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
-from fonts.views import FontViewSet
+from fonts.views import FileUploadView, FontViewSet#, FontImageViewSet
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^font_upload/(?P<filename>[^/]+)$', FileUploadView.as_view(), name='font-upload')
 ]
 
 router = DefaultRouter()
-router.register(r'api/fonts', FontViewSet, base_name='fonts')
+router.register(r'api/fonts/', FontViewSet, base_name='fonts')
+
 
 urlpatterns += router.urls

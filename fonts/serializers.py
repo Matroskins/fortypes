@@ -14,6 +14,11 @@ class SymbolForFontSerializer(ModelSerializer):
         fields = ('value', 'point_one_x', 'point_one_y', 'point_two_x', 'point_two_y')
 
 
+class FontImageSerializer(ModelSerializer):
+    class Meta:
+        model = ImageObj
+
+
 class FontSerializer(ModelSerializer):
     symbols = SymbolForFontSerializer(many=True)
     author_name = SerializerMethodField()

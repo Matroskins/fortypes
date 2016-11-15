@@ -6,7 +6,7 @@ from core.models import ImageObj
 class ImageObjOutSerializer(ModelSerializer):
     class Meta:
         model = ImageObj
-        fields = ('image_original', 'image_thumbnail')
+        fields = ('image_original', 'image_thumbnail', 'id')
 
 
 class ImageObjInSerializer(ModelSerializer):

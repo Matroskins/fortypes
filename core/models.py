@@ -21,4 +21,4 @@ class ImageObj(models.Model):
     image_original = ImageField(storage=storage, )
     image_thumbnail = ProcessedImageField([
         ResizeToFill(100, 100)], storage=storage,
-        format='JPEG', options={'quality': 90})
+        format='JPEG', options={'quality': 90}, null=True)
