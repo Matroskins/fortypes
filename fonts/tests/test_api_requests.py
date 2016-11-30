@@ -8,7 +8,7 @@ from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol
-from fonts.serializers import FontSerializer, SymbolForFontSerializer
+from fonts.serializers import FontSerializer, SymbolForFontSerializer, FontCountSerializer
 from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
 
 
@@ -117,3 +117,25 @@ class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertEqual(response.data, ImageObjOutSerializer(image_obj).data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ImageObj.objects.all()[0].image_original.delete()
+
+
+class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(FontsCountTestCase, self).setUp()
+        self.account = AccountFactory(user=self.user)
+        self.font_1 = FontFactory(owner=self.account, content='THE')
+        self.font_2 = FontFactory(owner=self.account, author_name='Mr. Writer', content='HER')
+        self.symbol_1 = SymbolFactory(font=self.font_1)
+        self.symbol_2 = SymbolFactory(font=self.font_1)
+        self.symbol_3 = SymbolFactory(font=self.font_2)
+        self.url = reverse("fonts-count-list")
+
+    def test_get_fonts_count(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, FontCountSerializer(data={'count': 2}).initial_data)
+
+    def test_get_fonts_count_filter(self):
+        response = self.client.get(self.url, data={'content': 'ER'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, FontCountSerializer(data={'count': 1}).initial_data)

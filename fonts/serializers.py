@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField, ModelField, IntegerField
 from rest_framework.serializers import ModelSerializer
 
@@ -47,3 +48,7 @@ class FontSerializer(ModelSerializer):
         fields = ('content', 'author_name', 'status', 'id', 'symbols', 'owner_id', 'image_id', 'image')
         read_only_fields = ('id', 'author_name', 'image_thumbnail')  #, 'status')
         extra_kwargs = {'owner_id': {'write_only': True}, 'image_id': {'write_only': True}}
+
+
+class FontCountSerializer(serializers.Serializer):
+    count = serializers.IntegerField()

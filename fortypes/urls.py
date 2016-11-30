@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
-from fonts.views import FileUploadView, FontViewSet#, FontImageViewSet
+from fonts.views import FileUploadView, FontCountView, FontViewSet
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -26,6 +26,7 @@ urlpatterns = [
 
 router = DefaultRouter()
 router.register(r'api/fonts/', FontViewSet, base_name='fonts')
+router.register(r'api/fonts-count/', FontCountView, base_name='fonts-count')
 
 
 urlpatterns += router.urls

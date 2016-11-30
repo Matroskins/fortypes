@@ -1,5 +1,4 @@
 import django_filters
-from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import views
 from rest_framework.parsers import FileUploadParser
@@ -11,7 +10,7 @@ from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from fonts.filters import FontFilter
 from fonts.models import Font
-from fonts.serializers import FontSerializer
+from fonts.serializers import FontSerializer, FontCountSerializer
 
 
 class FontViewSet(mixins.CreateModelMixin,
@@ -29,6 +28,22 @@ class FontViewSet(mixins.CreateModelMixin,
         return super().create(request, *args, **kwargs)
 
 
+class FontCountView(mixins.ListModelMixin,
+                    GenericViewSet):
+    queryset = Font.objects.all()
+    serializer_class = FontCountSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = FontFilter
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(data={'count': queryset.count()})
+        serializer.is_valid()
+        return Response(serializer.data)
+
+
 class FileUploadView(views.APIView):
     parser_classes = (FileUploadParser,)
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -41,7 +56,6 @@ class FileUploadView(views.APIView):
         # img_obj.image_thumbnail.save(filename, file_obj)
         # img_obj.save()
         return Response(data=ImageObjOutSerializer(img_obj).data, status=200)
-
 
 # TODO change font, change symbol views
 # TODO moderation
