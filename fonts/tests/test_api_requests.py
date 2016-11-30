@@ -56,8 +56,8 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsGetTestCase, self).setUp()
         self.account = AccountFactory(user=self.user)
-        self.font_1 = FontFactory(owner=self.account)
-        self.font_2 = FontFactory(owner=self.account, author_name='Mr. Writer')
+        self.font_1 = FontFactory(owner=self.account, content='THE')
+        self.font_2 = FontFactory(owner=self.account, author_name='Mr. Writer', content='HER')
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)
@@ -87,6 +87,21 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_1_data, response.data[0]['symbols'])
         self.assertIn(symbol_2_data, response.data[0]['symbols'])
         self.assertIn(symbol_3_data, response.data[1]['symbols'])
+
+    def test_get_font_search_one(self):
+        response = self.client.get(self.url, data={'content': 'ER'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_get_font_search_two(self):
+        response = self.client.get(self.url, data={'content': 'HE'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_get_font_search_three(self):
+        response = self.client.get(self.url, data={'content': 'T'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
 
 
 class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
