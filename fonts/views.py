@@ -24,7 +24,7 @@ class FontViewSet(mixins.CreateModelMixin,
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
     def create(self, request, *args, **kwargs):
-        request.data.update({"owner_id": request.user.account.pk})
+        request.data.update({"owner_id": request.user.pk})
         return super().create(request, *args, **kwargs)
 
 

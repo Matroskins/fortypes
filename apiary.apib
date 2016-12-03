@@ -51,7 +51,7 @@ Get list of all published fonts
 
 
 
-## Fonts Collection [/fonts-count?content=TH]
+## Fonts Count [/fonts-count?content=TH]
 
 ### List Fonts Count [GET]
 
@@ -122,4 +122,25 @@ Upload image and get image id before create a font
         {
             "id": 232,
             "image_original": "http://testserver/api/fonts/test_file_Buu1X6g.jpg",
+        }
+
+
+## Registration by Invite [/invite-registration]
+
+### Registration by Invite [POST]
+
+User can perform registration by provided invite code
+
++ Request (application/json)
+
+        {
+            "email": "test@example.com",
+            "password": "saagrerr",
+            "invite_code": 'ABSDEF',
+        }
+
++ Response 200 (application/json)
+
+        {
+            'key': 'a26bf33d5d68e28ee51cd305e81f6b76f2c1a32c',
         }

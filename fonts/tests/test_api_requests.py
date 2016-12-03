@@ -3,7 +3,6 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.tests.factories import AccountFactory
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
@@ -15,7 +14,6 @@ from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
 class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontCreateTestCase, self).setUp()
-        self.account = AccountFactory(user=self.user)
         self.url = reverse("fonts-list")
         self.image_id = ImageObjFactory().pk
 
@@ -41,7 +39,7 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         }
         response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        font = Font.objects.get(owner=self.account)
+        font = Font.objects.get(owner=self.user)
         response.data['image']['image_original'] = '/media/' + response.data['image']['image_original'].split('/')[-1]
         response.data['image']['image_thumbnail'] = '/media/' + response.data['image']['image_thumbnail'].split('/')[-1]
         self.assertEqual(response.data, FontSerializer(font).data)
@@ -55,9 +53,8 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
 class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsGetTestCase, self).setUp()
-        self.account = AccountFactory(user=self.user)
-        self.font_1 = FontFactory(owner=self.account, content='THE')
-        self.font_2 = FontFactory(owner=self.account, author_name='Mr. Writer', content='HER')
+        self.font_1 = FontFactory(owner=self.user, content='THE')
+        self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)
@@ -78,7 +75,7 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
 
         self.assertEqual(response.data, [FontSerializer(self.font_1).data, FontSerializer(self.font_2).data])
         self.assertEqual(response.data[0]['author_name'],
-                         " ".join((self.account.user.first_name, self.account.user.last_name)))
+                         " ".join((self.user.first_name, self.user.last_name)))
         self.assertEqual(response.data[1]['author_name'], 'Mr. Writer')
 
         symbol_1_data = SymbolForFontSerializer(self.symbol_1).data
@@ -107,7 +104,6 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
 class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(UploadImageTestCase, self).setUp()
-        self.account = AccountFactory(user=self.user)
         self.url = reverse("font-upload", args=('test_file.jpg',))
         self.test_file = open('fonts/tests/test_file.jpg', 'rb').read()
 
@@ -122,9 +118,8 @@ class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
 class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsCountTestCase, self).setUp()
-        self.account = AccountFactory(user=self.user)
-        self.font_1 = FontFactory(owner=self.account, content='THE')
-        self.font_2 = FontFactory(owner=self.account, author_name='Mr. Writer', content='HER')
+        self.font_1 = FontFactory(owner=self.user, content='THE')
+        self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)

@@ -28,7 +28,7 @@ class FontSerializer(ModelSerializer):
     image = ImageObjOutSerializer(required=False)
 
     def get_author_name(self, instance):
-        return instance.author_name or instance.owner.user.get_full_name()
+        return instance.author_name or instance.owner.get_full_name()
 
     def create(self, validated_data):
         owner = validated_data.pop('owner_id')

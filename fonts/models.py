@@ -1,10 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.db.models.fields.related import OneToOneField
 
-from accounts.models import Account
-from core.models import ImageObj, ModelHasOwner
+from accounts.models import ModelHasOwner
+from core.models import ImageObj, TimestampModel
 
 STATUS_PRIVATE = 'private'
 STATUS_ON_REVIEW = 'on_review'
@@ -17,7 +16,7 @@ STATUS_CHOICES = (
 )
 
 
-class Font(ModelHasOwner, models.Model):
+class Font(ModelHasOwner, TimestampModel):
     content = models.CharField(max_length=200, help_text='content')
     author_name = models.CharField(max_length=500, help_text='author_name', blank=True, null=True)
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
