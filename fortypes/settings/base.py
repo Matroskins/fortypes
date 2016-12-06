@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'accounts',
     'fonts',
     'invite',
+    'user_font_relation',
 ]
 
 SITE_ID = 1
