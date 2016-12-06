@@ -61,4 +61,4 @@ class FileUploadView(views.APIView):
 # TODO moderation
 # TODO like view
 # TODO Authors view (works count, likes)
-# TODO add write tools
+# TODO add (ex. write tools) tags
