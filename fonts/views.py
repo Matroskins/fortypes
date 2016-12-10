@@ -58,7 +58,7 @@ class FileUploadView(views.APIView):
         return Response(data=ImageObjOutSerializer(img_obj).data, status=200)
 
 # TODO change font, change symbol views
-# TODO moderation
+# TODO moderation (without api)
 # TODO like view
-# TODO Authors view (works count, likes)
+# TODO Authors view (include works count, likes)
 # TODO add (ex. write tools) tags
