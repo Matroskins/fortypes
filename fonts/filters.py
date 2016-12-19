@@ -5,7 +5,8 @@ from fonts.models import Font
 
 
 class FontFilter(FilterSet):
-    content = django_filters.CharFilter(lookup_expr='contains')
+    content_contains = django_filters.CharFilter(lookup_expr='contains', name='content')
+    content_exact = django_filters.CharFilter(lookup_expr='exact', name='content')
 
     class Meta:
         model = Font

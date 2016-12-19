@@ -86,17 +86,27 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_3_data, response.data[1]['symbols'])
 
     def test_get_font_search_one(self):
-        response = self.client.get(self.url, data={'content': 'ER'})
+        response = self.client.get(self.url, data={'content_contains': 'ER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
     def test_get_font_search_two(self):
-        response = self.client.get(self.url, data={'content': 'HE'})
+        response = self.client.get(self.url, data={'content_contains': 'HE'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
     def test_get_font_search_three(self):
-        response = self.client.get(self.url, data={'content': 'T'})
+        response = self.client.get(self.url, data={'content_contains': 'T'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_get_font_search_empty_content_exact(self):
+        response = self.client.get(self.url, data={'content_exact': 'HE'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_get_font_search_ok_content_exact(self):
+        response = self.client.get(self.url, data={'content_exact': 'HER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
@@ -131,6 +141,6 @@ class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertEqual(response.data, FontCountSerializer(data={'count': 2}).initial_data)
 
     def test_get_fonts_count_filter(self):
-        response = self.client.get(self.url, data={'content': 'ER'})
+        response = self.client.get(self.url, data={'content_exact': 'HER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, FontCountSerializer(data={'count': 1}).initial_data)

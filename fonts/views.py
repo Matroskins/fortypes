@@ -60,5 +60,10 @@ class FileUploadView(views.APIView):
 # TODO change font, change symbol views
 # TODO moderation (without api)
 # TODO like view
-# TODO Authors view (include works count, likes)
-# TODO add (ex. write tools) tags
+# TODO Uploader view (include works count, likes)
+# TODO add (ex. write tools) tags, get tags
+# TODO login, logout view
+# TODO support only jpg and png
+# TODO - how many letters - keep count in constance?
+# TODO collections
+
