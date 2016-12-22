@@ -7,6 +7,7 @@ from core.consts import IMAGE_NOT_EXIST
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from fonts.models import Author
+from user_font_relation.models import UserFontRelation
 from .models import Font, Symbol
 
 
@@ -62,3 +63,18 @@ class FontGetSerializer(ModelSerializer):
 
 class FontCountSerializer(serializers.Serializer):
     count = serializers.IntegerField()
+
+
+class AuthorSerializer(ModelSerializer):
+    likes_count = serializers.SerializerMethodField()
+    works_count = serializers.SerializerMethodField()
+
+    def get_likes_count(self, instance):
+        return UserFontRelation.objects.filter(like=True, font__author=instance).count()
+
+    def get_works_count(self, instance):
+        return Font.objects.filter(author=instance).count()
+
+    class Meta:
+        model = Author
+        fields = ('name', 'likes_count', 'works_count')

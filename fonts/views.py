@@ -11,9 +11,9 @@ from core.models import ImageObj
 from core.permissions import IsOwnerOrSafe
 from core.serializers import ImageObjOutSerializer
 from fonts.filter_backend import IsAdminOrModeratedFilterBackend
-from fonts.filters import FontFilter
-from fonts.models import Font
-from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer
+from fonts.filters import FontFilter, AuthorFilter
+from fonts.models import Font, Author
+from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer
 
 
 class FontViewSet(mixins.CreateModelMixin,
@@ -68,11 +68,19 @@ class FileUploadView(views.APIView):
         # img_obj.save()
         return Response(data=ImageObjOutSerializer(img_obj).data, status=200)
 
-# TODO Uploader view (include works count, likes) ??? Uploader or Author?
+
+class AuthorView(mixins.ListModelMixin,
+                 GenericViewSet):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AuthorFilter
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+
 # TODO add (ex. write tools) tags, get tags
 # TODO login, logout view
-# TODO support only jpg and png
-# TODO - how many letters - keep count in constance?
+# TODO support only jpg and png ???
+# TODO - how many letters - symbols count
 # TODO collections
 
 # TODO - BACKLOG -  change font, change symbol views

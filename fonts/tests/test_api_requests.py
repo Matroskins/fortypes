@@ -8,9 +8,9 @@ from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol, STATUS_ON_REVIEW, Author
-from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer
+from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer
 from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AuthorFactory
-from user_font_relation.tests.factories import AdminFontRelationFactory
+from user_font_relation.tests.factories import AdminFontRelationFactory, UserFontRelationFactory
 
 
 class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
@@ -247,3 +247,60 @@ class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
         response = self.client.get(self.url, data={'content_exact': 'HER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, FontCountSerializer(data={'count': 1}).initial_data)
+
+
+class AuthorsTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(AuthorsTestCase, self).setUp()
+        self.user_2 = UserFactory(username='any name')
+
+        self.author = AuthorFactory(name='Mr. Writer')
+        self.font_1 = FontFactory(author=self.author, owner=self.user)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user, font=self.font_1, like=True)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user_2, font=self.font_1, like=True)
+        self.font_2 = FontFactory(author=self.author, owner=self.user)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user, font=self.font_2, like=True)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user_2, font=self.font_2, like=True)
+        self.font_3 = FontFactory(author=self.author, owner=self.user)
+
+        self.author_2 = AuthorFactory(name='Mr. Peter')
+        self.font_4 = FontFactory(author=self.author_2, owner=self.user)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user, font=self.font_4, like=True)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user_2, font=self.font_4, like=True)
+
+        self.author_3 = AuthorFactory(name='Mr. Killer')
+        self.font_5 = FontFactory(author=self.author_3, owner=self.user)
+        self.admin_font_relation = UserFontRelationFactory(user=self.user_2, font=self.font_5, like=True)
+        self.font_6 = FontFactory(author=self.author_3, owner=self.user)
+
+        self.url = reverse("authors-list")
+
+    def test_get_all(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.data, AuthorSerializer([self.author, self.author_2, self.author_3], many=True).data)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['name'], 'Mr. Writer')
+        self.assertEqual(response.data[0]['likes_count'], 4)
+        self.assertEqual(response.data[0]['works_count'], 3)
+
+        self.assertEqual(response.data[1]['name'], 'Mr. Peter')
+        self.assertEqual(response.data[1]['likes_count'], 2)
+        self.assertEqual(response.data[1]['works_count'], 1)
+
+        self.assertEqual(response.data[2]['name'], 'Mr. Killer')
+        self.assertEqual(response.data[2]['likes_count'], 1)
+        self.assertEqual(response.data[2]['works_count'], 2)
+
+    def test_get_filter(self):
+        response = self.client.get(self.url, data={'name': 'ter'})
+        self.assertEqual(response.data, AuthorSerializer([self.author, self.author_2], many=True).data)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]['name'], 'Mr. Writer')
+        self.assertEqual(response.data[0]['likes_count'], 4)
+        self.assertEqual(response.data[0]['works_count'], 3)
+
+        self.assertEqual(response.data[1]['name'], 'Mr. Peter')
+        self.assertEqual(response.data[1]['likes_count'], 2)
+        self.assertEqual(response.data[1]['works_count'], 1)
