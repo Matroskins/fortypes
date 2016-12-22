@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from core.models import ImageObj
+from core.permissions import IsOwnerOrSafe
 from core.serializers import ImageObjOutSerializer
+from fonts.filter_backend import IsAdminOrModeratedFilterBackend
 from fonts.filters import FontFilter
 from fonts.models import Font
 from fonts.serializers import FontSerializer, FontCountSerializer
@@ -16,12 +18,13 @@ from fonts.serializers import FontSerializer, FontCountSerializer
 class FontViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin,
+                  mixins.DestroyModelMixin,
                   GenericViewSet):
     queryset = Font.objects.all()
     serializer_class = FontSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrSafe)
     filter_class = FontFilter
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, IsAdminOrModeratedFilterBackend)
 
     def create(self, request, *args, **kwargs):
         request.data.update({"owner_id": request.user.pk})
@@ -57,8 +60,6 @@ class FileUploadView(views.APIView):
         # img_obj.save()
         return Response(data=ImageObjOutSerializer(img_obj).data, status=200)
 
-# TODO change font, change symbol views
-# TODO moderation (without api)
 # TODO like view
 # TODO Uploader view (include works count, likes)
 # TODO add (ex. write tools) tags, get tags
@@ -67,3 +68,4 @@ class FileUploadView(views.APIView):
 # TODO - how many letters - keep count in constance?
 # TODO collections
 
+# TODO - BACKLOG -  change font, change symbol views

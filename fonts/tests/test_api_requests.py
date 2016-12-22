@@ -3,12 +3,13 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from accounts.tests.factories import UserFactory
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol
 from fonts.serializers import FontSerializer, SymbolForFontSerializer, FontCountSerializer
-from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
+from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AdminFontRelationFactory
 
 
 class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
@@ -55,6 +56,8 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         super(FontsGetTestCase, self).setUp()
         self.font_1 = FontFactory(owner=self.user, content='THE')
         self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
+        self.admin_font_relation = AdminFontRelationFactory(user=self.user, font=self.font_1)
+        self.admin_font_relation_2 = AdminFontRelationFactory(user=self.user, font=self.font_2)
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)
@@ -85,6 +88,26 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_2_data, response.data[0]['symbols'])
         self.assertIn(symbol_3_data, response.data[1]['symbols'])
 
+    def test_get_font_search_no_filter(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_get_font_search_no_filter_one_no_moderated(self):
+        self.admin_font_relation.moderated = False
+        self.admin_font_relation.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_get_font_search_no_filter_one_no_moderated_if_admin(self):
+        self.client.force_authenticate(user=UserFactory(is_superuser=True, username='user_admin'))
+        self.admin_font_relation.moderated = False
+        self.admin_font_relation.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
     def test_get_font_search_one(self):
         response = self.client.get(self.url, data={'content_contains': 'ER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -109,6 +132,32 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         response = self.client.get(self.url, data={'content_exact': 'HER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+
+
+class FontDeleteTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(FontDeleteTestCase, self).setUp()
+        self.font_1 = FontFactory(owner=self.user, content='THE')
+        self.admin_font_relation = AdminFontRelationFactory(user=self.user, font=self.font_1)
+        self.symbol_1 = SymbolFactory(font=self.font_1)
+        self.url = reverse("fonts-detail", args=(self.font_1.pk,))
+
+    def test_font_delete(self):
+        self.assertEqual(Font.objects.all().count(), 1)
+        self.assertEqual(Symbol.objects.all().count(), 1)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Font.objects.all().count(), 0)
+        self.assertEqual(Symbol.objects.all().count(), 0)
+
+    def test_font_delete_not_owner(self):
+        self.client.force_authenticate(user=UserFactory(username='user_2'))
+        self.assertEqual(Font.objects.all().count(), 1)
+        self.assertEqual(Symbol.objects.all().count(), 1)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Font.objects.all().count(), 1)
+        self.assertEqual(Symbol.objects.all().count(), 1)
 
 
 class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
