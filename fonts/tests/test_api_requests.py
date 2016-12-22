@@ -47,6 +47,7 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         serialized_font = FontGetSerializer(font).data
         self.assertEqual(response.data, serialized_font)
         self.assertEqual(serialized_font['author_name'], 'Alex Tester')
+        self.assertEqual(Author.objects.all().count(), 0)
 
         symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
         symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
