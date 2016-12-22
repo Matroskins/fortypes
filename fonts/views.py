@@ -32,7 +32,6 @@ class FontViewSet(mixins.CreateModelMixin,
 
     def create(self, request, *args, **kwargs):
         self.serializer_class = FontCreateSerializer
-        request.data.update({"owner_id": request.user.pk})
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = self.perform_create(serializer)

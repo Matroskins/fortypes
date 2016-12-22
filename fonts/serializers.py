@@ -31,7 +31,6 @@ class FontCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context['request'].user
 
-        owner = validated_data.pop('owner_id')
         symbols_data = validated_data.pop('symbols')
         author_name = validated_data.pop('author_name', None)
         try:
@@ -45,7 +44,7 @@ class FontCreateSerializer(serializers.Serializer):
             author, _ = Author.objects.get_or_create(user=user, name=user.get_full_name())
 
         validated_data['author'] = author
-        font = Font.objects.create(owner_id=owner, image_id=image_id, **validated_data)
+        font = Font.objects.create(owner=user, image_id=image_id, **validated_data)
         for symbol_data in symbols_data:
             Symbol.objects.create(font=font, **symbol_data)
         return font
