@@ -47,7 +47,9 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         serialized_font = FontGetSerializer(font).data
         self.assertEqual(response.data, serialized_font)
         self.assertEqual(serialized_font['author_name'], 'Alex Tester')
-        self.assertEqual(Author.objects.all().count(), 0)
+        author = Author.objects.get()
+        self.assertEqual(author.user, self.user)
+        self.assertEqual(author.name, self.user.get_full_name())
 
         symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
         symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
@@ -66,6 +68,7 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertEqual(response.data, serialized_font)
         self.assertEqual(font.author.name, 'Some Author')
         author = Author.objects.get()
+        self.assertEqual(author.user, None)
         self.assertEqual(font.author, author)
 
         symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
@@ -124,8 +127,7 @@ class FontsGetTestCase(APITestCase):
                                                        response.data[1]['image']['image_thumbnail'].split('/')[-1]
 
         self.assertEqual(response.data, [FontGetSerializer(self.font_1).data, FontGetSerializer(self.font_2).data])
-        self.assertEqual(response.data[0]['author_name'],
-                         " ".join((self.user.first_name, self.user.last_name)))
+        self.assertEqual(response.data[0]['author_name'], 'Mr. Author')
         self.assertEqual(response.data[1]['author_name'], 'Mr. Writer')
 
         symbol_1_data = SymbolForFontSerializer(self.symbol_1).data
@@ -228,8 +230,9 @@ class UploadImageTestCase(AuthorizeForTestsMixin, APITestCase):
 class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsCountTestCase, self).setUp()
-        self.font_1 = FontFactory(owner=self.user, content='THE')
-        self.font_2 = FontFactory(owner=self.user, content='HER')
+        self.author = AuthorFactory()
+        self.font_1 = FontFactory(owner=self.user, content='THE', author=self.author)
+        self.font_2 = FontFactory(owner=self.user, content='HER', author=self.author)
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)

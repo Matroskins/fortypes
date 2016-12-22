@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 
 from accounts.tests.factories import UserFactory
 from core.tests import AuthorizeForTestsMixin
-from fonts.tests.factories import FontFactory
+from fonts.tests.factories import FontFactory, AuthorFactory
 from user_font_relation.models import UserFontRelation
 from user_font_relation.serializers import UserFontRelationSerializer
 from user_font_relation.tests.factories import UserFontRelationFactory
@@ -13,8 +13,9 @@ from user_font_relation.tests.factories import UserFontRelationFactory
 class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsGetTestCase, self).setUp()
-        self.font_1 = FontFactory(owner=self.user)
-        self.font_2 = FontFactory(owner=self.user)
+        self.author = AuthorFactory(name='Some Author')
+        self.font_1 = FontFactory(owner=self.user, author=self.author)
+        self.font_2 = FontFactory(owner=self.user, author=self.author)
         self.user_font_relation_1 = UserFontRelationFactory(user=self.user, font=self.font_1)
         self.url_list = reverse('fonts-relations-list')
         self.url_1 = reverse('fonts-relations-detail', args=(self.font_1.pk,))

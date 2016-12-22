@@ -29,6 +29,8 @@ class FontCreateSerializer(serializers.Serializer):
     image = ImageObjOutSerializer(required=False)
 
     def create(self, validated_data):
+        user = self.context['request'].user
+
         owner = validated_data.pop('owner_id')
         symbols_data = validated_data.pop('symbols')
         author_name = validated_data.pop('author_name', None)
@@ -39,8 +41,10 @@ class FontCreateSerializer(serializers.Serializer):
 
         if author_name:
             author, _ = Author.objects.get_or_create(name=author_name)
-            validated_data['author'] = author
+        else:
+            author, _ = Author.objects.get_or_create(user=user, name=user.get_full_name())
 
+        validated_data['author'] = author
         font = Font.objects.create(owner_id=owner, image_id=image_id, **validated_data)
         for symbol_data in symbols_data:
             Symbol.objects.create(font=font, **symbol_data)
@@ -49,13 +53,8 @@ class FontCreateSerializer(serializers.Serializer):
 
 class FontGetSerializer(ModelSerializer):
     symbols = SymbolForFontSerializer(many=True)
-    author_name = serializers.SerializerMethodField()
+    author_name = serializers.CharField(source='author.name')
     image = ImageObjOutSerializer(required=False)
-
-    def get_author_name(self, instance):
-        if instance.author:
-            return instance.author.name
-        return instance.owner.get_full_name()
 
     class Meta:
         model = Font

@@ -13,21 +13,22 @@ class ImageObjFactory(factory.django.DjangoModelFactory):
         model = ImageObj
 
 
+class AuthorFactory(factory.django.DjangoModelFactory):
+    name = 'Mr. Author'
+
+    class Meta:
+        model = Author
+
+
 class FontFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
+    author = factory.SubFactory(AuthorFactory)
     content = 'THE'
     image = factory.SubFactory(ImageObjFactory)
     status = STATUS_PUBLIC
 
     class Meta:
         model = Font
-
-
-class AuthorFactory(factory.django.DjangoModelFactory):
-    name = 'Mr. Author'
-
-    class Meta:
-        model = Author
 
 
 class SymbolFactory(factory.django.DjangoModelFactory):

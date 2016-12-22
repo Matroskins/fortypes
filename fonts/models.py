@@ -18,10 +18,11 @@ STATUS_CHOICES = (
 
 class Author(TimestampModel):
     name = models.CharField(max_length=500, help_text='author_name', unique=True)
+    user = models.OneToOneField(User, null=True)
 
 
 class Font(ModelHasOwner, TimestampModel):
-    author = models.ForeignKey(Author, null=True, blank=True, db_index=False)
+    author = models.ForeignKey(Author, db_index=False)
     content = models.CharField(max_length=200, help_text='content')
     status = models.SlugField(choices=STATUS_CHOICES, default=STATUS_ON_REVIEW)
     image = OneToOneField(ImageObj)
