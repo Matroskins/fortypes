@@ -7,9 +7,9 @@ from accounts.tests.factories import UserFactory
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
-from fonts.models import Font, Symbol, STATUS_ON_REVIEW
-from fonts.serializers import FontSerializer, SymbolForFontSerializer, FontCountSerializer
-from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
+from fonts.models import Font, Symbol, STATUS_ON_REVIEW, Author
+from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer
+from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AuthorFactory
 from user_font_relation.tests.factories import AdminFontRelationFactory
 
 
@@ -18,8 +18,6 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         super(FontCreateTestCase, self).setUp()
         self.url = reverse("fonts-list")
         self.image_id = ImageObjFactory().pk
-
-    def test_create_font_with_image(self):
         self.data = {
             "title": "title",
             "content": "ab",
@@ -39,12 +37,56 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
                  },
             ],
         }
+
+    def test_create_font_with_image_no_author_name(self):
         response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         font = Font.objects.get(owner=self.user)
         response.data['image']['image_original'] = '/media/' + response.data['image']['image_original'].split('/')[-1]
         response.data['image']['image_thumbnail'] = '/media/' + response.data['image']['image_thumbnail'].split('/')[-1]
-        self.assertEqual(response.data, FontSerializer(font).data)
+        serialized_font = FontGetSerializer(font).data
+        self.assertEqual(response.data, serialized_font)
+        self.assertEqual(serialized_font['author_name'], 'Alex Tester')
+
+        symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
+        symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
+        self.assertIn(symbol_1_data, response.data['symbols'])
+        self.assertIn(symbol_2_data, response.data['symbols'])
+
+    def test_create_font_with_image_new_author_name(self):
+        self.data['author_name'] = 'Some Author'
+        self.assertEqual(Author.objects.all().count(), 0)
+        response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        font = Font.objects.get(owner=self.user)
+        response.data['image']['image_original'] = '/media/' + response.data['image']['image_original'].split('/')[-1]
+        response.data['image']['image_thumbnail'] = '/media/' + response.data['image']['image_thumbnail'].split('/')[-1]
+        serialized_font = FontGetSerializer(font).data
+        self.assertEqual(response.data, serialized_font)
+        self.assertEqual(font.author.name, 'Some Author')
+        author = Author.objects.get()
+        self.assertEqual(font.author, author)
+
+        symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
+        symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
+        self.assertIn(symbol_1_data, response.data['symbols'])
+        self.assertIn(symbol_2_data, response.data['symbols'])
+
+    def test_create_font_with_image_exist_author(self):
+        self.author = AuthorFactory(name='Some Author')
+        self.assertEqual(Author.objects.all().count(), 1)
+        self.data['author_name'] = 'Some Author'
+        response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        font = Font.objects.get(owner=self.user)
+        response.data['image']['image_original'] = '/media/' + response.data['image']['image_original'].split('/')[-1]
+        response.data['image']['image_thumbnail'] = '/media/' + response.data['image']['image_thumbnail'].split('/')[-1]
+        serialized_font = FontGetSerializer(font).data
+        self.assertEqual(response.data, serialized_font)
+
+        self.assertEqual(Author.objects.all().count(), 1)
+        self.assertEqual(font.author.name, 'Some Author')
+        self.assertEqual(font.author, self.author)
 
         symbol_1_data = SymbolForFontSerializer(Symbol.objects.all()[0]).data
         symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
@@ -57,8 +99,9 @@ class FontsGetTestCase(APITestCase):
         super(FontsGetTestCase, self).setUp()
         self.user = UserFactory(is_superuser=True, username='user_admin_1')
         self.client.force_authenticate(user=self.user)
+        self.author = AuthorFactory(name='Mr. Writer')
         self.font_1 = FontFactory(owner=self.user, content='THE')
-        self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
+        self.font_2 = FontFactory(owner=self.user, author=self.author, content='HER')
         self.admin_font_relation = AdminFontRelationFactory(user=self.user, font=self.font_1)
         self.admin_font_relation_2 = AdminFontRelationFactory(user=self.user, font=self.font_2)
         self.symbol_1 = SymbolFactory(font=self.font_1)
@@ -79,7 +122,7 @@ class FontsGetTestCase(APITestCase):
         response.data[1]['image']['image_thumbnail'] = '/media/' + \
                                                        response.data[1]['image']['image_thumbnail'].split('/')[-1]
 
-        self.assertEqual(response.data, [FontSerializer(self.font_1).data, FontSerializer(self.font_2).data])
+        self.assertEqual(response.data, [FontGetSerializer(self.font_1).data, FontGetSerializer(self.font_2).data])
         self.assertEqual(response.data[0]['author_name'],
                          " ".join((self.user.first_name, self.user.last_name)))
         self.assertEqual(response.data[1]['author_name'], 'Mr. Writer')
@@ -185,7 +228,7 @@ class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
     def setUp(self):
         super(FontsCountTestCase, self).setUp()
         self.font_1 = FontFactory(owner=self.user, content='THE')
-        self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
+        self.font_2 = FontFactory(owner=self.user, content='HER')
         self.symbol_1 = SymbolFactory(font=self.font_1)
         self.symbol_2 = SymbolFactory(font=self.font_1)
         self.symbol_3 = SymbolFactory(font=self.font_2)

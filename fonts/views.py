@@ -1,5 +1,6 @@
 import django_filters
 from rest_framework import mixins
+from rest_framework import status
 from rest_framework import views
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -12,7 +13,7 @@ from core.serializers import ImageObjOutSerializer
 from fonts.filter_backend import IsAdminOrModeratedFilterBackend
 from fonts.filters import FontFilter
 from fonts.models import Font
-from fonts.serializers import FontSerializer, FontCountSerializer
+from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer
 
 
 class FontViewSet(mixins.CreateModelMixin,
@@ -21,14 +22,22 @@ class FontViewSet(mixins.CreateModelMixin,
                   mixins.DestroyModelMixin,
                   GenericViewSet):
     queryset = Font.objects.all()
-    serializer_class = FontSerializer
+    serializer_class = FontGetSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrSafe)
     filter_class = FontFilter
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, IsAdminOrModeratedFilterBackend)
 
+    def perform_create(self, serializer):
+        return serializer.save()
+
     def create(self, request, *args, **kwargs):
+        self.serializer_class = FontCreateSerializer
         request.data.update({"owner_id": request.user.pk})
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(FontGetSerializer(instance).data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class FontCountView(mixins.ListModelMixin,
