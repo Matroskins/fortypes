@@ -60,8 +60,7 @@ class FileUploadView(views.APIView):
         # img_obj.save()
         return Response(data=ImageObjOutSerializer(img_obj).data, status=200)
 
-# TODO like view
-# TODO Uploader view (include works count, likes)
+# TODO Uploader view (include works count, likes) ??? Uploader or Author?
 # TODO add (ex. write tools) tags, get tags
 # TODO login, logout view
 # TODO support only jpg and png
