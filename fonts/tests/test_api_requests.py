@@ -9,7 +9,8 @@ from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol
 from fonts.serializers import FontSerializer, SymbolForFontSerializer, FontCountSerializer
-from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AdminFontRelationFactory
+from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
+from user_font_relation.tests.factories import AdminFontRelationFactory
 
 
 class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):

@@ -3,7 +3,6 @@ import factory
 from accounts.tests.factories import UserFactory
 from core.models import ImageObj
 from fonts.models import Font, Symbol
-from user_font_relation.models import AdminFontRelation
 
 
 class ImageObjFactory(factory.django.DjangoModelFactory):
@@ -33,12 +32,3 @@ class SymbolFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Symbol
-
-
-class AdminFontRelationFactory(factory.django.DjangoModelFactory):
-    font = factory.SubFactory(FontFactory)
-    user = factory.SubFactory(UserFactory)
-    moderated = True
-
-    class Meta:
-        model = AdminFontRelation
