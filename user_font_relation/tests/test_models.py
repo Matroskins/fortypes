@@ -10,7 +10,7 @@ class ModerateFontTestCase(TestCase):
     def setUp(self):
         super(ModerateFontTestCase, self).setUp()
         self.user = UserFactory(is_superuser=True, username='user_admin')
-        self.font_1 = FontFactory(owner=self.user)
+        self.font_1 = FontFactory(owner=self.user, status=STATUS_ON_REVIEW)
 
     def test_moderate_publish_font(self):
         relation = AdminFontRelationFactory(user=self.user, font=self.font_1, moderated=False)

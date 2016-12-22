@@ -2,7 +2,7 @@ import factory
 
 from accounts.tests.factories import UserFactory
 from core.models import ImageObj
-from fonts.models import Font, Symbol
+from fonts.models import Font, Symbol, STATUS_PUBLIC
 
 
 class ImageObjFactory(factory.django.DjangoModelFactory):
@@ -17,6 +17,7 @@ class FontFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     content = 'THE'
     image = factory.SubFactory(ImageObjFactory)
+    status = STATUS_PUBLIC
 
     class Meta:
         model = Font

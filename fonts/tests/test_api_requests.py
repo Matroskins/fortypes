@@ -7,7 +7,7 @@ from accounts.tests.factories import UserFactory
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
-from fonts.models import Font, Symbol
+from fonts.models import Font, Symbol, STATUS_ON_REVIEW
 from fonts.serializers import FontSerializer, SymbolForFontSerializer, FontCountSerializer
 from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory
 from user_font_relation.tests.factories import AdminFontRelationFactory
@@ -52,9 +52,11 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_2_data, response.data['symbols'])
 
 
-class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
+class FontsGetTestCase(APITestCase):
     def setUp(self):
         super(FontsGetTestCase, self).setUp()
+        self.user = UserFactory(is_superuser=True, username='user_admin_1')
+        self.client.force_authenticate(user=self.user)
         self.font_1 = FontFactory(owner=self.user, content='THE')
         self.font_2 = FontFactory(owner=self.user, author_name='Mr. Writer', content='HER')
         self.admin_font_relation = AdminFontRelationFactory(user=self.user, font=self.font_1)
@@ -95,6 +97,10 @@ class FontsGetTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertEqual(len(response.data), 2)
 
     def test_get_font_search_no_filter_one_no_moderated(self):
+        self.user_not_admin = UserFactory(is_superuser=False, username='user_no_admin')
+        self.client.force_authenticate(user=self.user_not_admin)
+        self.font_1.status = STATUS_ON_REVIEW
+        self.font_1.save()
         self.admin_font_relation.moderated = False
         self.admin_font_relation.save()
         response = self.client.get(self.url)
