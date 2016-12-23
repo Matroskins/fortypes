@@ -66,7 +66,7 @@ class FontGetSerializer(ModelSerializer):
         fields = ('content', 'status', 'id', 'symbols', 'owner_id', 'image_id', 'image', 'author_name')
 
 
-class FontCountSerializer(serializers.Serializer):
+class CountSerializer(serializers.Serializer):
     count = serializers.IntegerField()
 
 

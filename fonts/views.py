@@ -7,13 +7,14 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from core.mixins import CountViewMixin
 from core.models import ImageObj
 from core.permissions import IsOwnerOrSafe
 from core.serializers import ImageObjOutSerializer
 from fonts.filter_backend import IsAdminOrModeratedFilterBackend
 from fonts.filters import FontFilter, AuthorFilter
-from fonts.models import Font, Author, Tag
-from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer, \
+from fonts.models import Font, Author, Tag, Symbol
+from fonts.serializers import FontCreateSerializer, CountSerializer, FontGetSerializer, AuthorSerializer, \
     TagSerializer
 
 
@@ -40,20 +41,13 @@ class FontViewSet(mixins.CreateModelMixin,
         return Response(FontGetSerializer(instance).data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class FontCountView(mixins.ListModelMixin,
+class FontCountView(CountViewMixin,
+                    mixins.ListModelMixin,
                     GenericViewSet):
     queryset = Font.objects.all()
-    serializer_class = FontCountSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = FontFilter
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        serializer = self.get_serializer(data={'count': queryset.count()})
-        serializer.is_valid()
-        return Response(serializer.data)
 
 
 class FileUploadView(views.APIView):
@@ -91,9 +85,14 @@ class TagView(mixins.ListModelMixin,
         return super().create(request, *args, **kwargs)
 
 
+class SymbolsCountView(CountViewMixin,
+                       mixins.ListModelMixin,
+                       GenericViewSet):
+    queryset = Symbol.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
 # TODO login, logout view
 # TODO support only jpg and png ???
-# TODO - how many letters - symbols count
 # TODO collections
 
 # TODO - BACKLOG -  change font, change symbol views

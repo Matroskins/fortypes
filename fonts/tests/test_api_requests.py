@@ -8,7 +8,7 @@ from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
 from fonts.models import Font, Symbol, STATUS_ON_REVIEW, Author, Tag
-from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer, \
+from fonts.serializers import SymbolForFontSerializer, CountSerializer, FontGetSerializer, AuthorSerializer, \
     TagSerializer
 from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AuthorFactory, TagFactory
 from user_font_relation.tests.factories import AdminFontRelationFactory, UserFontRelationFactory
@@ -251,12 +251,29 @@ class FontsCountTestCase(AuthorizeForTestsMixin, APITestCase):
     def test_get_fonts_count(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, FontCountSerializer(data={'count': 2}).initial_data)
+        self.assertEqual(response.data, CountSerializer(data={'count': 2}).initial_data)
 
     def test_get_fonts_count_filter(self):
         response = self.client.get(self.url, data={'content_exact': 'HER'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, FontCountSerializer(data={'count': 1}).initial_data)
+        self.assertEqual(response.data, CountSerializer(data={'count': 1}).initial_data)
+
+
+class SymbolsCountTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(SymbolsCountTestCase, self).setUp()
+        self.author = AuthorFactory()
+        self.font_1 = FontFactory(owner=self.user, content='THE', author=self.author)
+        self.font_2 = FontFactory(owner=self.user, content='HER', author=self.author)
+        self.symbol_1 = SymbolFactory(font=self.font_1)
+        self.symbol_2 = SymbolFactory(font=self.font_1)
+        self.symbol_3 = SymbolFactory(font=self.font_2)
+        self.url = reverse("symbols-count-list")
+
+    def test_get_symbols_count(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, CountSerializer(data={'count': 3}).initial_data)
 
 
 class AuthorsTestCase(AuthorizeForTestsMixin, APITestCase):
