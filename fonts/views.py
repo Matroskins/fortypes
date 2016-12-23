@@ -93,6 +93,7 @@ class SymbolsCountView(CountViewMixin,
 
 # TODO login, logout view
 # TODO support only jpg and png ???
-# TODO collections
+# TODO collections (new app)
+# TODO signal update author - change user
 
 # TODO - BACKLOG -  change font, change symbol views
