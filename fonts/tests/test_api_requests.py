@@ -7,9 +7,10 @@ from accounts.tests.factories import UserFactory
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from core.tests import AuthorizeForTestsMixin
-from fonts.models import Font, Symbol, STATUS_ON_REVIEW, Author
-from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer
-from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AuthorFactory
+from fonts.models import Font, Symbol, STATUS_ON_REVIEW, Author, Tag
+from fonts.serializers import SymbolForFontSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer, \
+    TagSerializer
+from fonts.tests.factories import ImageObjFactory, FontFactory, SymbolFactory, AuthorFactory, TagFactory
 from user_font_relation.tests.factories import AdminFontRelationFactory, UserFontRelationFactory
 
 
@@ -286,6 +287,7 @@ class AuthorsTestCase(AuthorizeForTestsMixin, APITestCase):
 
     def test_get_all(self):
         response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, AuthorSerializer([self.author, self.author_2, self.author_3], many=True).data)
 
         self.assertEqual(len(response.data), 3)
@@ -303,6 +305,7 @@ class AuthorsTestCase(AuthorizeForTestsMixin, APITestCase):
 
     def test_get_filter(self):
         response = self.client.get(self.url, data={'name': 'ter'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, AuthorSerializer([self.author, self.author_2], many=True).data)
 
         self.assertEqual(len(response.data), 2)
@@ -313,3 +316,24 @@ class AuthorsTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertEqual(response.data[1]['name'], 'Mr. Peter')
         self.assertEqual(response.data[1]['likes_count'], 2)
         self.assertEqual(response.data[1]['works_count'], 1)
+
+
+class TagsTestCase(AuthorizeForTestsMixin, APITestCase):
+    def setUp(self):
+        super(TagsTestCase, self).setUp()
+        self.tag_1 = TagFactory(text='tag text 1', owner=self.user)
+        self.tag_2 = TagFactory(text='tag text 2', owner=self.user)
+        self.tag_3 = TagFactory(text='tag text 3', owner=self.user)
+        self.url = reverse("tags-list")
+
+    def test_get_all(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, TagSerializer([self.tag_1, self.tag_2, self.tag_3], many=True).data)
+
+    def test_create_tag(self):
+        self.assertEqual(Tag.objects.all().count(), 3)
+        response = self.client.post(self.url, data={'text': 'tag text new'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Tag.objects.all().count(), 4)
+        self.assertEqual(Tag.objects.all().last().owner, self.user)

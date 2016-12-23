@@ -1,12 +1,12 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField, ModelField, IntegerField
+from rest_framework.fields import IntegerField
 from rest_framework.serializers import ModelSerializer, CharField
 
 from core.consts import IMAGE_NOT_EXIST, AUTHOR_NAME_TAKEN
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
-from fonts.models import Author
+from fonts.models import Author, Tag
 from user_font_relation.models import UserFontRelation
 from .models import Font, Symbol
 
@@ -83,3 +83,10 @@ class AuthorSerializer(ModelSerializer):
     class Meta:
         model = Author
         fields = ('name', 'likes_count', 'works_count')
+
+
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('text', 'owner')
+        extra_kwargs = {'owner': {'write_only': True}}

@@ -2,7 +2,7 @@ import factory
 
 from accounts.tests.factories import UserFactory
 from core.models import ImageObj
-from fonts.models import Font, Symbol, STATUS_PUBLIC, Author
+from fonts.models import Font, Symbol, STATUS_PUBLIC, Author, Tag
 
 
 class ImageObjFactory(factory.django.DjangoModelFactory):
@@ -18,6 +18,14 @@ class AuthorFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Author
+
+
+class TagFactory(factory.django.DjangoModelFactory):
+    owner = factory.SubFactory(UserFactory)
+    text = 'tag_text'
+
+    class Meta:
+        model = Tag
 
 
 class FontFactory(factory.django.DjangoModelFactory):

@@ -35,3 +35,7 @@ class Symbol(models.Model):
     point_one_y = models.FloatField()
     point_two_x = models.FloatField()
     point_two_y = models.FloatField()
+
+
+class Tag(ModelHasOwner, models.Model):
+    text = models.CharField(max_length=50, unique=True)

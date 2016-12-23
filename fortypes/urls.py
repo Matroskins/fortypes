@@ -18,7 +18,7 @@ from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
 from accounts.views import InviteCodeRegisterView
-from fonts.views import FileUploadView, FontCountView, FontViewSet, AuthorView
+from fonts.views import FileUploadView, FontCountView, FontViewSet, AuthorView, TagView
 from user_font_relation.views import UserFontRelationsViewSet
 
 urlpatterns = [
@@ -31,6 +31,7 @@ urlpatterns = [
 
 router = DefaultRouter()
 router.register(r'api/fonts/', FontViewSet, base_name='fonts')
+router.register(r'api/tags/', TagView, base_name='tags')
 router.register(r'api/authors/', AuthorView, base_name='authors')
 router.register(r'api/fonts-count/', FontCountView, base_name='fonts-count')
 router.register(r'api/fonts-relations/', UserFontRelationsViewSet, base_name='fonts-relations')

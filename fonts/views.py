@@ -12,8 +12,9 @@ from core.permissions import IsOwnerOrSafe
 from core.serializers import ImageObjOutSerializer
 from fonts.filter_backend import IsAdminOrModeratedFilterBackend
 from fonts.filters import FontFilter, AuthorFilter
-from fonts.models import Font, Author
-from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer
+from fonts.models import Font, Author, Tag
+from fonts.serializers import FontCreateSerializer, FontCountSerializer, FontGetSerializer, AuthorSerializer, \
+    TagSerializer
 
 
 class FontViewSet(mixins.CreateModelMixin,
@@ -77,7 +78,19 @@ class AuthorView(mixins.ListModelMixin,
     filter_class = AuthorFilter
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
-# TODO add (ex. write tools) tags, get tags
+
+class TagView(mixins.ListModelMixin,
+              mixins.CreateModelMixin,
+              GenericViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def create(self, request, *args, **kwargs):
+        request.data['owner'] = request.user.pk
+        return super().create(request, *args, **kwargs)
+
+
 # TODO login, logout view
 # TODO support only jpg and png ???
 # TODO - how many letters - symbols count
