@@ -77,7 +77,7 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         self.assertIn(symbol_2_data, response.data['symbols'])
 
     def test_create_font_with_image_exist_author(self):
-        self.author = AuthorFactory(name='Some Author')
+        self.author = AuthorFactory(name='Some Author', user=self.user)
         self.assertEqual(Author.objects.all().count(), 1)
         self.data['author_name'] = 'Some Author'
         response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
@@ -96,6 +96,15 @@ class FontCreateTestCase(AuthorizeForTestsMixin, APITestCase):
         symbol_2_data = SymbolForFontSerializer(Symbol.objects.all()[1]).data
         self.assertIn(symbol_1_data, response.data['symbols'])
         self.assertIn(symbol_2_data, response.data['symbols'])
+
+    def test_create_font_with_image_exist_author_other_user(self):
+        other_user = UserFactory(username='other_admin')
+        self.author = AuthorFactory(name='Some Author', user=other_user)
+        self.assertEqual(Author.objects.all().count(), 1)
+        self.data['author_name'] = 'Some Author'
+        response = self.client.post(self.url, data=json.dumps(self.data), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Font.objects.all().count(), 0)
 
 
 class FontsGetTestCase(APITestCase):

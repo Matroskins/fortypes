@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField, ModelField, IntegerField
 from rest_framework.serializers import ModelSerializer, CharField
 
-from core.consts import IMAGE_NOT_EXIST
+from core.consts import IMAGE_NOT_EXIST, AUTHOR_NAME_TAKEN
 from core.models import ImageObj
 from core.serializers import ImageObjOutSerializer
 from fonts.models import Author
@@ -29,6 +29,11 @@ class FontCreateSerializer(serializers.Serializer):
     image_id = IntegerField(write_only=True)
     image = ImageObjOutSerializer(required=False)
 
+    def validate_author_name(self, value):
+        if Author.objects.filter(name=value).exclude(user=self.context['request'].user).exists():
+            raise ValidationError(AUTHOR_NAME_TAKEN)
+        return value
+
     def create(self, validated_data):
         user = self.context['request'].user
 
@@ -40,7 +45,7 @@ class FontCreateSerializer(serializers.Serializer):
             raise ValidationError(IMAGE_NOT_EXIST)
 
         if author_name:
-            author, _ = Author.objects.get_or_create(name=author_name)
+            author, created = Author.objects.get_or_create(name=author_name)
         else:
             author, _ = Author.objects.get_or_create(user=user, name=user.get_full_name())
 
