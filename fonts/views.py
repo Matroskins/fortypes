@@ -91,8 +91,8 @@ class SymbolsCountView(CountViewMixin,
     queryset = Symbol.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-# TODO support only jpg and png ???
 # TODO collections (new app)
-# TODO signal update author - change user
 
+# TODO - BACKLOG - update user serializer - change author
 # TODO - BACKLOG -  change font, change symbol views
+# TODO - BACKLOG - support only jpg and png ???
