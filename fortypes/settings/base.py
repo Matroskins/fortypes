@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'fonts',
     'invite',
     'user_font_relation',
+    'collections_posts',
 ]
 
 SITE_ID = 1

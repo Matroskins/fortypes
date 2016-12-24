@@ -18,6 +18,7 @@ from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
 from accounts.views import InviteCodeRegisterView
+from collections_posts.views import CollectionPostViewSet
 from fonts.views import FileUploadView, FontCountView, FontViewSet, AuthorView, TagView, SymbolsCountView
 from user_font_relation.views import UserFontRelationsViewSet
 
@@ -36,6 +37,7 @@ router.register(r'api/authors/', AuthorView, base_name='authors')
 router.register(r'api/fonts-count/', FontCountView, base_name='fonts-count')
 router.register(r'api/symbols-count/', SymbolsCountView, base_name='symbols-count')
 router.register(r'api/fonts-relations/', UserFontRelationsViewSet, base_name='fonts-relations')
+router.register(r'api/collections/', CollectionPostViewSet, base_name='collections')
 
 
 urlpatterns += router.urls

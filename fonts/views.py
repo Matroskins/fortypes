@@ -94,5 +94,7 @@ class SymbolsCountView(CountViewMixin,
 # TODO collections (new app)
 
 # TODO - BACKLOG - update user serializer - change author
+# TODO - BACKLOG - lang of font (selector)
+# TODO - BACKLOG - what is popular? likes?
 # TODO - BACKLOG -  change font, change symbol views
 # TODO - BACKLOG - support only jpg and png ???
