@@ -91,7 +91,6 @@ class SymbolsCountView(CountViewMixin,
     queryset = Symbol.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-# TODO login, logout view
 # TODO support only jpg and png ???
 # TODO collections (new app)
 # TODO signal update author - change user

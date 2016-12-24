@@ -61,6 +61,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'core.auth_backends.UserModelEmailBackend',    # Login w/ email
+    # 'django.contrib.auth.backends.ModelBackend',    # Login w/ username
+]
+
 ROOT_URLCONF = 'fortypes.urls'
 
 TEMPLATES = [
@@ -146,3 +151,5 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+# AUTHENTICATION_METHOD = 'email'
