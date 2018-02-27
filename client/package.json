@@ -8,6 +8,7 @@
     "react-scripts": "1.1.1",
     "recompose": "^0.26.0",
     "styled-components": "^3.1.6",
+    "webfontloader": "^1.6.28",
     "rebass":"^1.0.7"
   },
   "scripts": {
