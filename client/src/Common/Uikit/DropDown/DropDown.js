@@ -1,50 +1,73 @@
 import React from 'react'
 import styled from 'styled-components'
-import Dropdown, {
-  DropdownToggle,
-  DropdownMenu,
-  DropdownMenuWrapper,
-  MenuItem,
-  DropdownButton
-} from '@trendmicro/react-dropdown'
-import '@trendmicro/react-buttons/dist/react-buttons.css'
-import '@trendmicro/react-dropdown/dist/react-dropdown.css'
+import { compose, withState, withHandlers } from 'recompose'
+import SelectField from 'material-ui/SelectField'
+import MenuItem from 'material-ui/MenuItem'
 
-const DropDownNew = ({})=>(
-  <Dropdown
-    onSelect={(eventKey) => {
-      console.log(eventKey)
+const SelectFieldNew = styled(SelectField)`
+  & {
+    &:nth-child(2) {
+      & > div {
+        & > div {
+          display: inline-block !important;
+          width: auto !important;
+          &:hover {
+            div {
+                color: #fb6a3f !important;
+                fill: #fb6a3f !important;
+            }
+          }
+        }
+      }
+    }
+  }
+`
+// undefined--undefined-294
+const DropDownNew = ({ itemId, changeItemId }) => (
+  <SelectFieldNew
+    value={itemId}
+    underlineStyle={{ display: 'none' }}
+    iconStyle={{
+      display: 'inline',
+      padding: 0,
+      position: 'static',
+      verticalAlign: 'bottom',
+      width: 'auto',
+      height: 'auto',
+      fill: 'black',
     }}
->
-    <DropdownToggle
-        btnStyle="flat"
-    >
-        Toggler
-    </DropdownToggle>
-    <DropdownMenu>
-        <MenuItem header>Header</MenuItem>
-        <MenuItem eventKey={1}>link</MenuItem>
-        <MenuItem divider />
-        <MenuItem header>Header</MenuItem>
-        <MenuItem eventKey={2}>link</MenuItem>
-        <MenuItem eventKey={3} disabled>disabled</MenuItem>
-        <MenuItem
-            eventKey={4}
-            title="link with title"
-        >
-            link with title
-        </MenuItem>
-        <MenuItem
-            eventKey={5}
-            active
-            onSelect={(eventKey) => {
-                alert(`Alert from menu item.\neventKey: ${eventKey}`);
-            }}
-        >
-            link that alerts
-        </MenuItem>
-    </DropdownMenu>
-</Dropdown>
+    labelStyle={{
+      display: 'inline',
+      padding: 0,
+      top: 0,
+      position: 'static',
+      verticalAlign: 'bottom',
+      width: 'auto',
+      height: 'auto',
+      lineHeight: 'auto',
+    }}
+    selectedMenuItemStyle={{color:'#fb6a3f'}}
+    onChange={changeItemId}
+  >
+    <MenuItem value={1} primaryText="Never" />
+    <MenuItem value={2} primaryText="Every Night" />
+    <MenuItem value={3} primaryText="Weeknights" />
+    <MenuItem value={4} primaryText="Weekends" />
+    <MenuItem value={5} primaryText="Weekly" />
+  </SelectFieldNew>
 )
 
-export default DropDownNew
+const enhance = compose(
+  withState('itemId', 'setItemId', 1),
+  withState('hoverSelectF', 'setHoverSelectF', false),
+  withHandlers({
+    changeItemId: props => (event, index, value) => {
+      props.setItemId(value)
+    },
+    toggleHover: props => () => {
+      props.setHoverSelectF(!props.hoverSelectF)
+    },
+  })
+)
+
+export default enhance(DropDownNew)
