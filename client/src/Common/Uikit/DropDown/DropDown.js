@@ -59,14 +59,10 @@ const DropDownNew = ({ itemId, changeItemId }) => (
 
 const enhance = compose(
   withState('itemId', 'setItemId', 1),
-  withState('hoverSelectF', 'setHoverSelectF', false),
   withHandlers({
     changeItemId: props => (event, index, value) => {
       props.setItemId(value)
-    },
-    toggleHover: props => () => {
-      props.setHoverSelectF(!props.hoverSelectF)
-    },
+    }
   })
 )
 
