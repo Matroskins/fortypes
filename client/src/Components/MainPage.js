@@ -17,13 +17,14 @@ class MainPage extends Component {
           </Flex>
         </header>
         <Container>
-          {/* алфавит, вывводятся только те буквы, на которых есть картинк
-                     Необходимо задать буквы в initial state(?) */}
         </Container>
         <Container>{/* сколько картинок найдено */}</Container>
         <Container>{/* поиск по тэгам */}</Container>
         <div>
-          <Gallery>{allFonts.map(font => <FontCard font={font} key={font.id} />)}</Gallery>
+          {/* <Gallery>{allFonts.map(font => <FontCard font={font} key={font.id} />)}</Gallery> */}
+          {/* <ControllerGallery allFonts={allFonts}/> */}
+
+        <Gallery allFonts={allFonts}/>
         </div>
         <Flex>
           <Box>

@@ -1,53 +1,48 @@
-import React,  { Component } from 'react'
-import Isotope from 'isotope-layout';
+import React, { Component } from 'react'
+import Isotope from 'isotope-layout'
 import { Container } from 'rebass'
+import ContainerImg from './ContainerImg'
+import PerformSize from './PerformSize'
+import GridMasonry from './GridMasonry'
 import './index.css'
 
-
-const randomArray = Array(35).fill(3)
-
 export class Grid extends Component {
-  isotope = null;
-
-  componentDidMount = () => {
-    const grid = this.Grid;
-
-    if (!this.isotope) {
-      this.isotope = new Isotope(grid, {
-        layoutMode: 'masonry',
-        percentPosition: true,
-        itemSelector: '.item',
-        masonry: {
-          columnWidth: '.grid-sizer'
-        }
-      });
-      this.isotope.layout()
-    }
-    else{
-      this.isotope.layout()
-    }
+  isotope = null
+  state = {
+    sizeArray: [],
+    knowSize: false,
   }
-  render () {
-    return (
-      <div className="grid" ref={(c) => { this.Grid = c; }}>
-        <div className="grid-sizer" />
 
-        {randomArray.map((item, ind) => (
-          <div
-          className={'item'}
-          style={{
-            height: ind % 5 === 0 ? 50 : ind % 3 === 0 ? 200 : ind % 2 === 0 ? 150 : 100,
-            width: ind % 5 === 0 ? 50 : ind % 3 === 0 ? 200 : ind % 2 === 0 ? 150 : 100,
-            backgroundColor: 'black',
-            margin: '5px'
-          }} 
-          key={`item_${ind}`}
-        />
-        ))}
+  handleSaveSize = (id, container) => {
+    const {setState} = this
+    console.log('handle')
+    console.log(container)
+    console.log(`prev state`)
+    const setStateF = (height, width) => {this.setState((prevState) =>{ return {sizeArray: [
+      ...prevState.sizeArray,
+      { id, height, width },
+    ]}}) }
+    container.onload = function(){ 
+      setStateF(this.height, this.width)
+    }
+    
+    console.log(this.state.sizeArray)
+  }
+  render() {
+    const { allFonts } = this.props
+    const { sizeArray } = this.state
+    const knowSize = sizeArray.length === allFonts.length
+    console.log('size array')
+    console.log(sizeArray)
+    return (
+      <div>
+        {knowSize && <GridMasonry sizeArray={sizeArray} allFonts={allFonts} />}
+        {allFonts.map(font => {
+          return <PerformSize setSizeArray={this.handleSaveSize} font={font} key={`item_${font.id}`} />
+        })}
       </div>
-    );
+    )
   }
 }
-
 
 export default Grid
